@@ -9,5 +9,13 @@ namespace CashMana.Models
         public DateTimeOffset DateOfOperation { get; set; }
         public Category CurrentCategory { get; set; }
         public int Idhis { get; set; }
+        
+        public History()
+        {
+            Amount = 0;
+            Income = false;
+            DateOfOperation = DateTime.Today;
+            CurrentCategory = new Category();
+        }
     }
 }
