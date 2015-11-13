@@ -16,5 +16,15 @@ namespace CashMana.Models
         public CurrentCategories Categories { get; set; }
 
         public ObservableCollection<CategoryStat> ListCategoryStats { get; set; }
+        public Account()
+       {
+           Name = "";
+           CurrentBalance = 0;
+           Histories = new ObservableCollection<History>();
+            ListCategoryStats = new ObservableCollection<CategoryStat>();
+            Categories = new CurrentCategories();
+            Idacc =0;
+           start = 0;
+       }
     }
 }
