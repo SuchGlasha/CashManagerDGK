@@ -33,5 +33,26 @@ namespace CashMana.Views
         }
 
         private Profile MyProfile;
+        
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            var readData = await ReadWrite.readStringFromLocalFile("data");
+            Profile CurrentProfile = JsonSerilizer.ToProfile(readData);
+            MyProfile = CurrentProfile;
+
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (Pass.Text == MyProfile.Password)
+            {
+                this.Frame.Navigate(
+            typeof(AccountPage),0,
+            new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+            }
+        }
+        
     }
 }
