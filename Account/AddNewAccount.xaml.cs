@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -15,6 +16,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using CashMana.JsonSerializer;
 using CashMana.Models;
+using CashMana.Views.Settings;
 using orioks;
 
 
@@ -48,27 +50,60 @@ namespace CashMana.Views.Account
             {
                 profile = DataProfile;
             }
-           
+   double accStart;
+   
             Models.Account acc = new Models.Account();
             acc.Name = accname.Text;
-            acc.start = Convert.ToDouble(accbalance.Text);
-            if (profile.Accounts.Count == 0)
+
+
+            if (String.IsNullOrEmpty(accname.Text))
             {
-                acc.Idacc = 0;
+                SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+                mySolidColorBrush.Color = Color.FromArgb(255, 255, 145, 145);
+               
+                accname.Focus(FocusState.Keyboard);
+
             }
             else
             {
-                acc.Idacc = profile.Accounts.Count;
+                if (!Double.TryParse(accbalance.Text, out accStart))
+                {
+                    SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+                    mySolidColorBrush.Color = Color.FromArgb(255, 255, 145, 145);
+                    //    accbalance.Foreground = mySolidColorBrush;
+                    accbalance.BorderBrush = mySolidColorBrush;
+                    accbalance.Text = "";
+                  
+
+                }
+                else
+                {
+                    acc.start = Convert.ToDouble(accbalance.Text);
+                    if (profile.Accounts.Count == 0)
+                    {
+                        acc.Idacc = 0;
+                    }
+                    else
+                    {
+                        acc.Idacc = profile.Accounts.Count;
+                    }
+
+                    acc.Histories = new ObservableCollection<History>();
+                    profile.Accounts.Add(acc);
+
+                    await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(profile));
+                    if (profile.Password == null)
+                    {
+                        this.Frame.Navigate(
+                      typeof(NewPassword),
+                      new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        this.Frame.Navigate(
+                      typeof(AccountPage),
+                      new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                    }
+                }
+
             }
-         
-            acc.Histories = new ObservableCollection<History>();
-            profile.Accounts.Add(acc);
-
-            await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(profile));
-            this.Frame.Navigate(
-                typeof(AccountPage),
-                new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-
-        }
-    }
-}
