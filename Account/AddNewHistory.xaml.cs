@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -72,36 +73,55 @@ namespace CashMana.Views.Account
         private async void AddHistory(object sender, RoutedEventArgs e)
         {
           
-            History NewHistory = new History();
-        
-           
-            NewHistory.CurrentCategory.name = AutoSuggestBox.Text;
+            double accStart;
 
-            NewHistory.Amount = Convert.ToInt32(AmountBox.Text);
-            if (((ComboBoxItem) IncomeBox.SelectedItem).Content.ToString() == "Доход") NewHistory.Income = true;
-            else NewHistory.Income = false;
-            NewHistory.Idhis = acc.MyProfile.Accounts[myID].Histories.Count;
-            NewHistory.DateOfOperation = DateBox.Date;
+            if (!Double.TryParse(AmountBox.Text, out accStart))
+            {
+                SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+                mySolidColorBrush.Color = Color.FromArgb(255, 255, 145, 145);
+                //    accbalance.Foreground = mySolidColorBrush;
+                AmountBox.BorderBrush = mySolidColorBrush;
+                AmountBox.Text = "";
+                AmountBox.Focus(FocusState.Keyboard);
 
-            CurrentProfile.Accounts[myID].Histories.Add(NewHistory);
-            await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(CurrentProfile));
-            if (CheckLastPageForward(typeof(AccountPage))) //Переход с AddNewAccount via Forward
-            {
-                this.Frame.Navigate(
-           typeof(AccountPage), acc.id,
-           new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
-            }
-            else if (CheckLastPage(typeof (AccountPage)))
-            {
-                this.Frame.Navigate(
-          typeof(AccountPage), acc.id,
-          new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
             }
             else
             {
-                 this.Frame.Navigate(
-          typeof(HistoryPage), acc,
-          new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                History NewHistory = new History();
+
+
+                NewHistory.CurrentCategory.name = AutoSuggestBox.Text;
+
+                NewHistory.Amount = Convert.ToInt32(AmountBox.Text);
+
+                if (((ComboBoxItem)IncomeBox.SelectedItem).Content.ToString() == "Доход") NewHistory.Income = true;
+                else NewHistory.Income = false;
+                NewHistory.Idhis = acc.MyProfile.Accounts[myID].Histories.Count;
+                NewHistory.DateOfOperation = DateBox.Date;
+                CurrentProfile.Accounts[myID].Histories.Add(NewHistory);
+                CurrentProfile.Accounts[myID].Histories.OrderBy(o => o.DateOfOperation).Reverse();
+                await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(CurrentProfile));
+                if (CheckLastPageForward(typeof(AccountPage))) //Переход с AddNewAccount via Forward
+                {
+                    this.Frame.Navigate(
+               typeof(AccountPage), acc.id,
+               new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                }
+                else if (CheckLastPage(typeof(AccountPage)))
+                {
+                    this.Frame.Navigate(
+              typeof(AccountPage), acc.id,
+              new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    DataToProvide data = new DataToProvide();
+                    data.MyProfile = CurrentProfile;
+                    data.id = myID;
+                    this.Frame.Navigate(
+             typeof(HistoryPage), data,
+             new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                }
             }
 
           
@@ -115,6 +135,19 @@ namespace CashMana.Views.Account
         {
             var items = new List<Category>();
             items.Add(new Category() { name = "Зарплата"});
+            items.Add(new Category() { name = "Транспорт" });
+            items.Add(new Category() { name = "Еда" });
+            items.Add(new Category() { name = "Развлечения" });
+            items.Add(new Category() { name = "Телефон" });
+            items.Add(new Category() { name = "Интернет" });
+
+            return items;
+        }
+        
+        public static List<Category> Outcome()
+        {
+            var items = new List<Category>();
+      
             items.Add(new Category() { name = "Транспорт" });
             items.Add(new Category() { name = "Еда" });
             items.Add(new Category() { name = "Развлечения" });
@@ -147,7 +180,7 @@ namespace CashMana.Views.Account
 
           
 
-            vm.TestItems = myList;
+              AutoSuggestBox.ItemsSource = myList;
            
 
 
@@ -156,7 +189,24 @@ namespace CashMana.Views.Account
 
         private void Suggest_Chosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
+            if (args.SelectedItem.ToString() == "Зарплата")
+            {
+                IncomeBox.SelectedIndex = 0;
+                IncomeBox.IsEnabled = false;
+            }
+            else if (args.SelectedItem.ToString() == "Телефон" ||
+                     args.SelectedItem.ToString() == "Одежда" ||
+                     args.SelectedItem.ToString() == "Интернет" ||
+                     args.SelectedItem.ToString() == "Еда" ||
+                    args.SelectedItem.ToString() == "Развлечения" ||
+                     args.SelectedItem.ToString() == "Транспорт"
+                )
+            {
+                IncomeBox.SelectedIndex = 1;
+                IncomeBox.IsEnabled = false;
+            }
 
+            else IncomeBox.IsEnabled = true;
 
             var x = new ObservableCollection<Category>(GetFakeRuntimeItems());
             foreach (var cut in x)
@@ -164,9 +214,13 @@ namespace CashMana.Views.Account
                 if (args.SelectedItem.Equals(cut))
                 {
                     AutoSuggestBox.Text = cut.name;
+                 
+                   
                 }
             }
-           
+
+       
+
         }
     }
 
