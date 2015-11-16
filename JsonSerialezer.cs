@@ -28,6 +28,13 @@ public static Profile ToProfile(string json)
 
 	foreach(var account in profile.Accounts)
 	{
+		account.Categories.Salary.Amount = 0;
+                account.Categories.Transport.Amount = 0;
+                account.Categories.Telephone.Amount = 0;
+                account.Categories.Food.Amount = 0;
+                account.Categories.Entertaiment.Amount = 0;
+                account.Categories.Internet.Amount = 0;
+                account.Categories.Everything.Amount = 0;
 		account.CurrentBalance = 0 + account.start;
 		account.Histories.OrderBy(o = > o.DateOfOperation);
 		foreach(var history in account.Histories)
