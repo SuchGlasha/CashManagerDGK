@@ -18,6 +18,7 @@ using CashMana.JsonSerializer;
 using CashMana.Models;
 using CashMana.ViewModels;
 using CashMana.Views.Account;
+using CashMana.Views.Settings;
 using orioks;
 
 // Шаблон элемента пустой страницы задокументирован по адресу http://go.microsoft.com/fwlink/?LinkId=234238
@@ -35,15 +36,7 @@ namespace CashMana.Views
             NavigationCacheMode = NavigationCacheMode.Required;
         }
 
-        public static Rect GetElementRect(FrameworkElement element)
-        {
-            GeneralTransform buttonTransform = element.TransformToVisual(null);
-            Point point = buttonTransform.TransformPoint(new Point());
-            return new Rect(point, new Size(element.ActualWidth, element.ActualHeight));
-        }
-
-
-        private bool CheckLastPage(Type desiredPage)
+             private bool CheckLastPage(Type desiredPage)
         {
             var lastPage = Frame.BackStack.LastOrDefault();
             return (lastPage != null && lastPage.SourcePageType.Equals(desiredPage)) ? true : false;
@@ -189,6 +182,7 @@ namespace CashMana.Views
                 
                     var readDataa = await ReadWrite.readStringFromLocalFile("data");
                     Profile CurrentProfilea = JsonSerilizer.ToProfile(readDataa);
+                    
                     DataProfile = CurrentProfilea;
                     foreach (var item in CurrentProfilea.Accounts)
                     {
@@ -223,33 +217,44 @@ namespace CashMana.Views
 
 
 
-        private void AttachmentImage_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            // Create a menu and add commands specifying a callback delegate for each.
-            // Since command delegates are unique, no need to specify command Ids.
-            var menu = new PopupMenu();
-            menu.Commands.Add(new UICommand("Удалить аккаунт",  (command) =>
-            {
-                FrameworkElement element = (FrameworkElement)e.OriginalSource;
-                if (element.DataContext != null && element.DataContext is Models.Account)
-                {
-                    Models.Account selectedOne = (Models.Account)element.DataContext;
-                    DataProfile.Accounts.Remove(selectedOne);
-                }
-
-
-
-            }));
-           
-
-       
-        }
+        
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(
                  typeof(AddNewAccount),DataProfile,
                  new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+
+        }
+        
+         private async void Delete_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            ContentDialog dialogo = new ContentDialog();
+          
+            dialogo.PrimaryButtonText = "Удалить";
+            dialogo.SecondaryButtonText = "Отмена";
+            dialogo.SecondaryButtonClick += Tela_SecondaryButtonClick;
+            dialogo.PrimaryButtonClick += Tela_PrimaryButtonClick;
+            dialogo.Title = "Вы точно хотите удалить операцию?";
+
+
+            await dialogo.ShowAsync();
+
+        }
+        
+         private void Tela_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+
+        }
+
+        private async void Tela_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            History del = new History();
+            del = DetailListView.SelectedItem as History;
+            DataProfile.Accounts[_lastSelectedItem.Idacc].Histories.Remove(del);
+            await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(DataProfile));
+        
 
         }
 
@@ -334,6 +339,35 @@ namespace CashMana.Views
             this.Frame.Navigate(
              typeof(AddNewHistory), addHist,
              new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+        }
+        
+        private async void DeleteAcc_OnClick(object sender, RoutedEventArgs e)
+        {
+            ContentDialog dialogo = new ContentDialog();
+
+            dialogo.PrimaryButtonText = "Удалить";
+            dialogo.SecondaryButtonText = "Отмена";
+            dialogo.SecondaryButtonClick += New_SecondaryButtonClick;
+            dialogo.PrimaryButtonClick += New_PrimaryButtonClick;
+            dialogo.Title = "Вы точно хотите удалить аккаунт?";
+
+            await dialogo.ShowAsync();
+        }
+
+        private async void New_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            Models.Account del = new Models.Account();
+            del = _lastSelectedItem;
+            DataProfile.Accounts.Remove(del);
+            await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(DataProfile));
+            this.Frame.Navigate(
+            typeof(AccountPage), _lastSelectedItem.Idacc,
+            new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+        }
+
+        private void New_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            //throw new NotImplementedException();
         }
     }
 }
