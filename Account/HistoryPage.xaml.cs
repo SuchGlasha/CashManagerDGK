@@ -54,40 +54,26 @@ namespace CashMana.Views
             base.OnNavigatedTo(e);
             if (CheckLastPageForward(typeof(AddNewHistory))) //Переход с AddNewAccount via Forward
             {
-                //    var backStack = Frame.BackStack;
-                //    var backStackCount = backStack.Count;
-
-                //    if (backStackCount > 1)
-                //    {
-                //        backStack.RemoveAt(backStackCount - 1);
-                //        backStack.RemoveAt(backStackCount - 2);
-                //    }
-                //    var profile = e.Parameter as Models.Account;
-
-                //    var vm = DataContext as HistoryPageViewModel;
-
-
-
-                //    vm.SelectedItem = profile;\
-                var profile = e.Parameter as Models.Account;
-                myID = profile.Idacc;
+                
             }
             else if (CheckLastPage(typeof (AddNewHistory)))
             {
                 var backStack = Frame.BackStack;
                 var backStackCount = backStack.Count;
-
+                var profile = e.Parameter as DataToProvide;
+                myID = profile.id; 
                 if (backStackCount > 1)
                 {
                     backStack.RemoveAt(backStackCount - 1);
                     backStack.RemoveAt(backStackCount - 2);
                 }
-                var profile = e.Parameter as DataToProvide;
+             
                 CurrentProfile = profile.MyProfile;
                 var vm = DataContext as HistoryPageViewModel;
 
                 await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(profile.MyProfile));
-                
+
+                profile.MyProfile.Accounts[profile.id].Histories.OrderBy(o => o.DateOfOperation);
                 vm.SelectedItem = profile.MyProfile.Accounts[profile.id];
 
                
@@ -101,7 +87,8 @@ namespace CashMana.Views
                 var profile = JsonSerilizer.ToProfile(readData);
                
                 Models.Account list = profile.Accounts[myID];
-                CurrentProfile = JsonSerilizer.ToProfile(readData);
+                list.Histories.OrderBy(o => o.DateOfOperation);
+                CurrentProfile = profile;
                
                 vm.SelectedItem = list;
 
@@ -176,6 +163,35 @@ namespace CashMana.Views
             this.Frame.Navigate(
              typeof(AddNewHistory), addHist ,
              new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+        }
+        
+        private async void Delete_OnClick(object sender, RoutedEventArgs e)
+        {
+           
+            ContentDialog dialogo = new ContentDialog();
+            dialogo.Height = 200;
+            dialogo.PrimaryButtonText = "Удалить";
+            dialogo.SecondaryButtonText = "Отмена";
+            dialogo.SecondaryButtonClick += Tela_SecondaryButtonClick;
+            dialogo.PrimaryButtonClick += Tela_PrimaryButtonClick;
+            dialogo.Title = "Вы точно хотите удалить операцию?";
+
+
+            await dialogo.ShowAsync();
+            
+        }
+
+        private void Tela_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+           
+        }
+
+        private async void Tela_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            History del = new History();
+            del = HistoryList.SelectedItem as History;
+            CurrentProfile.Accounts[myID].Histories.Remove(del);
+            await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(CurrentProfile));
         }
     }
 }
