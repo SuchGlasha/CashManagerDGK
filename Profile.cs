@@ -10,5 +10,12 @@ namespace CashMana.Models
         public DateTime CurrentData { get; set; }
         public ObservableCollection<Account> Accounts { get; set; }
       //  public CurrentCategories Categories { get; set; }
+      
+      public Profile()
+        {
+            Password = null;
+            CurrentData = DateTime.Now;
+            Accounts = new ObservableCollection<Account>();
+        }
     }
 }

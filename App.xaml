@@ -1,0 +1,26 @@
+﻿<Application
+    x:Class="CashMana.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CashMana"
+    xmlns:viewModels="using:CashMana.ViewModels"
+    xmlns:Converters="using:CashMana.Converters"
+    RequestedTheme="Light">
+
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <viewModels:BaseViewModelLocator x:Key="ViewModelLocator" />
+            <Converters:IncomeBackground x:Key="MyConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/Styles.xaml"/>
+                
+               
+            </ResourceDictionary.MergedDictionaries>
+          
+        </ResourceDictionary>
+
+       
+    </Application.Resources>
+
+</Application>
