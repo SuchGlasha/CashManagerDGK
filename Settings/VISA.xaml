@@ -1,0 +1,35 @@
+﻿<Page
+    x:Class="CashMana.Views.Settings.VISA"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CashMana.Views.Settings"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CashMana.Controls"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:PageHeader >
+            <controls:PageHeader.HeaderContent>
+                <TextBlock Text="Привязать карту" Style="{ThemeResource PageTitleTextBlockStyle}"  TextWrapping="NoWrap"/>
+            </controls:PageHeader.HeaderContent>
+        </controls:PageHeader>
+        
+        <Grid Grid.Row="1" x:Name="ACCcontent">
+            <StackPanel Margin="0 30 0 0" EntranceNavigationTransitionInfo.IsTargetElement="True">
+
+                <TextBlock HorizontalAlignment="Center" Text="Номер карты:" Margin="0 0 155 0"></TextBlock>
+
+                <TextBox Margin="0 10 0 0" Width="320" Height="30"  x:Name="VisaCard"></TextBox>
+
+                <Button HorizontalAlignment="Center"  Height="30" Margin="0 25 0 0" Content="Привязать" Click="AddCart" Width="320"></Button>
+            </StackPanel>
+
+        </Grid>
+    </Grid>
+</Page>

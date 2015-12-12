@@ -70,20 +70,43 @@ namespace CashMana.Views.Account
 
         }
 
+        private async void Error(string title)
+        {
+            ContentDialog dialogo = new ContentDialog();
+            dialogo.PrimaryButtonText = "Ок";
+            dialogo.Title = title;
+            await dialogo.ShowAsync();
+        }
+
         private async void AddHistory(object sender, RoutedEventArgs e)
         {
-          
+
             double accStart;
 
             if (!Double.TryParse(AmountBox.Text, out accStart))
             {
-                SolidColorBrush mySolidColorBrush = new SolidColorBrush();
-                mySolidColorBrush.Color = Color.FromArgb(255, 255, 145, 145);
-                //    accbalance.Foreground = mySolidColorBrush;
-                AmountBox.BorderBrush = mySolidColorBrush;
+                Error("Введите сумму в рублях");
                 AmountBox.Text = "";
                 AmountBox.Focus(FocusState.Keyboard);
 
+            }
+            else if(Convert.ToDouble(AmountBox.Text) < 0)
+            {
+                Error("Некорректные данные. Необходимо ввести число");
+                AmountBox.Text = "";
+                AmountBox.Focus(FocusState.Keyboard);
+            }
+            else if (Convert.ToDouble(AmountBox.Text) > 1000000000000)
+            {
+                Error("Слишком большое число");
+            }
+            else if (AutoSuggestBox.Text == "")
+            {
+                Error("Введите название категории");
+            }
+            else if (AutoSuggestBox.Text.Length > 19)
+            {
+                Error("Введите название не длинее 20-ти символов");
             }
             else
             {
@@ -92,11 +115,12 @@ namespace CashMana.Views.Account
 
                 NewHistory.CurrentCategory.name = AutoSuggestBox.Text;
 
-                NewHistory.Amount = Convert.ToInt32(AmountBox.Text);
+              
+                NewHistory.Amount = Convert.ToDouble(AmountBox.Text);
 
                 if (((ComboBoxItem)IncomeBox.SelectedItem).Content.ToString() == "Доход") NewHistory.Income = true;
                 else NewHistory.Income = false;
-                NewHistory.Idhis = acc.MyProfile.Accounts[myID].Histories.Count;
+                NewHistory.Idhis = acc.MyProfile.Accounts[myID].Histories.Count;    
                 NewHistory.DateOfOperation = DateBox.Date;
                 CurrentProfile.Accounts[myID].Histories.Add(NewHistory);
                 CurrentProfile.Accounts[myID].Histories.OrderBy(o => o.DateOfOperation).Reverse();
@@ -123,6 +147,7 @@ namespace CashMana.Views.Account
              new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
                 }
             }
+            
 
           
 
@@ -131,7 +156,7 @@ namespace CashMana.Views.Account
 
 
 
-        public List<Category> GetFakeRuntimeItems()
+        public static List<Category> GetFakeRuntimeItems()
         {
             var items = new List<Category>();
             items.Add(new Category() { name = "Зарплата"});
@@ -143,7 +168,7 @@ namespace CashMana.Views.Account
 
             return items;
         }
-        
+
         public static List<Category> Outcome()
         {
             var items = new List<Category>();
@@ -156,10 +181,9 @@ namespace CashMana.Views.Account
 
             return items;
         }
-
         private void Suggest_Textchanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-           var vm = DataContext as AddNewHistoryViewModel;
+           //var vm = DataContext as AddNewHistoryViewModel;
            
             if (args.Reason == AutoSuggestionBoxTextChangeReason.SuggestionChosen)
             {
@@ -169,23 +193,29 @@ namespace CashMana.Views.Account
 
             var x = new ObservableCollection<Category>(GetFakeRuntimeItems());
 
-            ObservableCollection<Category> myList = new ObservableCollection<Category>();
+            ObservableCollection<string> myList = new ObservableCollection<string>();
             foreach (var myString in x)
             {
                 if (myString.name.Contains(sender.Text) == true)
                 {
-                    myList.Add(myString);
+                    myList.Add(myString.name);
                 }
             }
 
-          
+            
 
-              AutoSuggestBox.ItemsSource = myList;
+
+
+            AutoSuggestBox.ItemsSource = myList;
            
 
 
 
         }
+
+       
+
+
 
         private void Suggest_Chosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {

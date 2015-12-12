@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,7 +37,10 @@ namespace CashMana.Views
             NavigationCacheMode = NavigationCacheMode.Required;
         }
 
-             private bool CheckLastPage(Type desiredPage)
+     
+
+
+        private bool CheckLastPage(Type desiredPage)
         {
             var lastPage = Frame.BackStack.LastOrDefault();
             return (lastPage != null && lastPage.SourcePageType.Equals(desiredPage)) ? true : false;
@@ -111,6 +115,76 @@ namespace CashMana.Views
                 var readDataa = await ReadWrite.readStringFromLocalFile("data");
                 Profile CurrentProfilea = JsonSerilizer.ToProfile(readDataa);
                 DataProfile = CurrentProfilea;
+                string limits = "";
+                var category = DataProfile.Accounts[_lastSelectedItem.Idacc].Categories;
+
+                if (category.Telephone.isShow)
+                {
+                    if (category.Telephone.Amount >= category.Telephone.Limit * 0.95)
+                    {
+                        limits += category.Telephone.name + " ";
+                        category.Telephone.isShow = false;
+                    
+                    }
+
+                }
+                if (category.Transport.isShow)
+                {
+                    if (category.Transport.Amount >= category.Transport.Limit * 0.95)
+                    {
+                        limits +=  category.Transport.name + " " ;
+                        category.Transport.isShow = false;
+                 
+                    }
+
+                }
+               if (category.Food.isShow)
+                {
+                    if (category.Food.Amount >= category.Food.Limit * 0.95)
+                    {
+                        limits += category.Food.name + " ";
+                        category.Food.isShow = false;
+                    }
+
+                }
+                if (category.Entertaiment.isShow)
+                {
+                    if (category.Entertaiment.Amount >= category.Entertaiment.Limit * 0.95)
+                    {
+                        limits += category.Entertaiment.name + " ";
+                        category.Entertaiment.isShow = false;
+                    }
+
+                }
+              if (category.Internet.isShow)
+                {
+                    if (category.Internet.Amount >= category.Internet.Limit * 0.95)
+                    {
+                        limits += category.Internet.name + " ";
+                        category.Internet.isShow = false;
+                    }
+
+                }
+               if (category.Everything.isShow)
+                {
+                    if (category.Everything.Amount >= category.Everything.Limit * 0.95)
+                    {
+                        limits += category.Everything.name + " ";
+                        category.Everything.isShow = false;
+                    }
+
+                }
+                if (limits != "")
+                {
+                    ContentDialog dialogo = new ContentDialog();
+                    dialogo.Title = "Вы превысили лимит на следующие категории:"+" " + limits;
+                    dialogo.PrimaryButtonText = "Ок";
+
+                    await dialogo.ShowAsync();
+
+                }
+
+
                 foreach (var item in CurrentProfilea.Accounts)
                 {
                     vm.TestItems.Add(item);
@@ -134,7 +208,7 @@ namespace CashMana.Views
                 }
 
             }
-            else if (CheckLastPage(typeof(AddNewHistory)))
+            else if (CheckLastPageForward(typeof(AddNewHistory)))
             {
                 var backStack = Frame.BackStack;
                 var backStackCount = backStack.Count;
@@ -145,13 +219,15 @@ namespace CashMana.Views
                     backStack.RemoveAt(backStackCount - 2);
                 }
 
-
+               
                 var vm = DataContext as AccountPageViewModel;
                 vm.TestItems.Clear();
 
                 var readDataa = await ReadWrite.readStringFromLocalFile("data");
                 Profile CurrentProfilea = JsonSerilizer.ToProfile(readDataa);
                 DataProfile = CurrentProfilea;
+              
+
                 foreach (var item in CurrentProfilea.Accounts)
                 {
                     vm.TestItems.Add(item);
@@ -177,12 +253,14 @@ namespace CashMana.Views
             }
             else
             {
+                var readDataa = await ReadWrite.readStringFromLocalFile("data");
+                Profile CurrentProfilea = JsonSerilizer.ToProfile(readDataa);
+              
                 var vm = DataContext as AccountPageViewModel;
                 vm.TestItems.Clear();
                 
-                    var readDataa = await ReadWrite.readStringFromLocalFile("data");
-                    Profile CurrentProfilea = JsonSerilizer.ToProfile(readDataa);
-                    
+                  
+                  
                     DataProfile = CurrentProfilea;
                     foreach (var item in CurrentProfilea.Accounts)
                     {
@@ -217,7 +295,7 @@ namespace CashMana.Views
 
 
 
-        
+       
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
@@ -226,8 +304,9 @@ namespace CashMana.Views
                  new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
 
         }
-        
-         private async void Delete_OnClick(object sender, RoutedEventArgs e)
+
+
+        private async void Delete_OnClick(object sender, RoutedEventArgs e)
         {
 
             ContentDialog dialogo = new ContentDialog();
@@ -242,8 +321,8 @@ namespace CashMana.Views
             await dialogo.ShowAsync();
 
         }
-        
-         private void Tela_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+
+        private void Tela_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
 
         }
@@ -257,8 +336,6 @@ namespace CashMana.Views
         
 
         }
-
-
 
         private void DisableContentTransitions()
         {
@@ -340,7 +417,7 @@ namespace CashMana.Views
              typeof(AddNewHistory), addHist,
              new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
         }
-        
+
         private async void DeleteAcc_OnClick(object sender, RoutedEventArgs e)
         {
             ContentDialog dialogo = new ContentDialog();
@@ -349,7 +426,7 @@ namespace CashMana.Views
             dialogo.SecondaryButtonText = "Отмена";
             dialogo.SecondaryButtonClick += New_SecondaryButtonClick;
             dialogo.PrimaryButtonClick += New_PrimaryButtonClick;
-            dialogo.Title = "Вы точно хотите удалить аккаунт?";
+            dialogo.Title = "Вы точно хотите удалить счёт?";
 
             await dialogo.ShowAsync();
         }
@@ -369,5 +446,6 @@ namespace CashMana.Views
         {
             //throw new NotImplementedException();
         }
+
     }
 }

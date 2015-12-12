@@ -1,0 +1,55 @@
+﻿<Page
+    x:Class="CashMana.Views.Settings.MakeLimit"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CashMana.Views.Settings"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CashMana.Controls"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:PageHeader >
+            <controls:PageHeader.HeaderContent>
+                <TextBlock Text="Выберете счёт" Style="{ThemeResource PageTitleTextBlockStyle}"  TextWrapping="NoWrap"/>
+            </controls:PageHeader.HeaderContent>
+        </controls:PageHeader>
+
+        <ListView  EntranceNavigationTransitionInfo.IsTargetElement="True" x:Name="MasterListView" Grid.Column="0"  Grid.Row="1"
+                    ItemClick="ToHistory_Click"  ItemsSource="{Binding TestItems}" IsItemClickEnabled="True" >
+
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Height="45" >
+
+                        <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Margin="10 0 0 0" Text="{Binding Name}" HorizontalAlignment="Left" VerticalAlignment="Center"  />
+                        <StackPanel   VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 0 10 0">
+                            <TextBlock Style="{ThemeResource BodyTextBlockStyle}"  Text="{Binding CurrentBalance}" Margin="0 0 5 0"  />
+                            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="рублей"  />
+
+                        </StackPanel>
+
+
+
+                    </Grid>
+
+
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
+
+    </Grid>
+</Page>

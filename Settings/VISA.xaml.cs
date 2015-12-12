@@ -12,10 +12,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using CashMana.JsonSerializer;
-using CashMana.Models;
-using CashMana.Views.Account;
-using orioks;
 
 // Шаблон элемента пустой страницы задокументирован по адресу http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -24,13 +20,12 @@ namespace CashMana.Views.Settings
     /// <summary>
     /// Пустая страница, которую можно использовать саму по себе или для перехода внутри фрейма.
     /// </summary>
-    public sealed partial class NewPassword : Page
+    public sealed partial class VISA : Page
     {
-        public NewPassword()
+        public VISA()
         {
             this.InitializeComponent();
         }
-        Profile _Profile = new Profile();
 
         private async void Error(string title)
         {
@@ -40,32 +35,32 @@ namespace CashMana.Views.Settings
             await dialogo.ShowAsync();
         }
 
-
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        private void AddCart(object sender, RoutedEventArgs e)
         {
-            base.OnNavigatedTo(e);
+            double accStart;
 
-            var readData = await ReadWrite.readStringFromLocalFile("data");
-            Profile CurrentProfile = JsonSerilizer.ToProfile(readData);
-            _Profile = CurrentProfile;
-           
-        }
-
-        private async void Create_Pass(object sender, RoutedEventArgs e)
-        {
-            if (newPassBox.Text != "")
+            if (!Double.TryParse(VisaCard.Text, out accStart))
             {
-                _Profile.Password = newPassBox.Text;
-                await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(_Profile));
+                Error("Поле номер карты может содержать только числа");
+                VisaCard.Text = "";
+                VisaCard.Focus(FocusState.Keyboard);
 
-                this.Frame.Navigate(
-                  typeof(AccountPage)
-                  );
             }
             else
             {
-                Error("Пароль должен содержать символы");
+                if (VisaCard.Text == "" || VisaCard.Text.Length < 11 || VisaCard.Text.Length > 13)
+                {
+                    Error("Поле номер карты должно содержать 12 символов");
+                }
+                else
+                {
+                    this.Frame.Navigate(
+                    typeof(SettingsPage),
+                    new Windows.UI.Xaml.Media.Animation.DrillInNavigationTransitionInfo());
+                }
             }
+           
+            
         }
     }
 }
