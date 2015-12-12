@@ -43,6 +43,14 @@ namespace CashMana.Views.Account
 
         }
 
+
+        private async void Error(string title)
+        {
+            ContentDialog dialogo = new ContentDialog();
+            dialogo.PrimaryButtonText = "Ок";
+            dialogo.Title = title;
+            await dialogo.ShowAsync();
+        }
         private async void NewAccount(object sender, RoutedEventArgs e)
         {
             Profile profile = new Profile();
@@ -50,7 +58,7 @@ namespace CashMana.Views.Account
             {
                 profile = DataProfile;
             }
-   double accStart;
+            double accStart;
    
             Models.Account acc = new Models.Account();
             acc.Name = accname.Text;
@@ -58,27 +66,42 @@ namespace CashMana.Views.Account
 
             if (String.IsNullOrEmpty(accname.Text))
             {
-                SolidColorBrush mySolidColorBrush = new SolidColorBrush();
-                mySolidColorBrush.Color = Color.FromArgb(255, 255, 145, 145);
+                Error("Введите название аккаунта");
                
                 accname.Focus(FocusState.Keyboard);
 
+            }
+            else if (accname.Text.Length > 19)
+            {
+                Error("Введите название не длинее 20-ти символов");
             }
             else
             {
                 if (!Double.TryParse(accbalance.Text, out accStart))
                 {
-                    SolidColorBrush mySolidColorBrush = new SolidColorBrush();
-                    mySolidColorBrush.Color = Color.FromArgb(255, 255, 145, 145);
-                    //    accbalance.Foreground = mySolidColorBrush;
-                    accbalance.BorderBrush = mySolidColorBrush;
-                    accbalance.Text = "";
+                      Error("Введите текущий баланс");
+                
+                      accbalance.Text = "";
                   
 
                 }
+                else if (Convert.ToDouble(accbalance.Text) > 1000000000000)
+                {
+                    Error("Слишком большое число");
+
+                    accbalance.Text = "";
+                }
+                else if (Convert.ToDouble(accbalance.Text) < 0)
+                {
+                    Error("Введите положительный текущий баланс");
+
+                    accbalance.Text = "";
+                }
                 else
                 {
-                    acc.start = Convert.ToDouble(accbalance.Text);
+                    double balance = Convert.ToDouble(accbalance.Text);
+                  
+                    acc.start = balance;
                     if (profile.Accounts.Count == 0)
                     {
                         acc.Idacc = 0;
@@ -107,3 +130,11 @@ namespace CashMana.Views.Account
                 }
 
             }
+
+
+
+
+
+        }
+    }
+}

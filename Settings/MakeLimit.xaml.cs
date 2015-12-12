@@ -11,10 +11,10 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using CashMana.JsonSerializer;
 using CashMana.Models;
-using CashMana.Views.Account;
 using orioks;
 
 // Шаблон элемента пустой страницы задокументирован по адресу http://go.microsoft.com/fwlink/?LinkId=234238
@@ -24,48 +24,29 @@ namespace CashMana.Views.Settings
     /// <summary>
     /// Пустая страница, которую можно использовать саму по себе или для перехода внутри фрейма.
     /// </summary>
-    public sealed partial class NewPassword : Page
+    public sealed partial class MakeLimit : Page
     {
-        public NewPassword()
+        public MakeLimit()
         {
             this.InitializeComponent();
         }
-        Profile _Profile = new Profile();
 
-        private async void Error(string title)
-        {
-            ContentDialog dialogo = new ContentDialog();
-            dialogo.PrimaryButtonText = "Ок";
-            dialogo.Title = title;
-            await dialogo.ShowAsync();
-        }
-
+        private Models.Account _lastSelectedItem;
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            var readDataa = await ReadWrite.readStringFromLocalFile("data");
+            Profile CurrentProfilea = JsonSerilizer.ToProfile(readDataa);
 
-            var readData = await ReadWrite.readStringFromLocalFile("data");
-            Profile CurrentProfile = JsonSerilizer.ToProfile(readData);
-            _Profile = CurrentProfile;
-           
+            MasterListView.ItemsSource = CurrentProfilea.Accounts;
         }
 
-        private async void Create_Pass(object sender, RoutedEventArgs e)
+        private void ToHistory_Click(object sender, ItemClickEventArgs e)
         {
-            if (newPassBox.Text != "")
-            {
-                _Profile.Password = newPassBox.Text;
-                await ReadWrite.saveStringToLocalFile("data", JsonSerilizer.ToJson(_Profile));
-
-                this.Frame.Navigate(
-                  typeof(AccountPage)
-                  );
-            }
-            else
-            {
-                Error("Пароль должен содержать символы");
-            }
+            var clickedItem = e.ClickedItem as Models.Account;
+            _lastSelectedItem = clickedItem;
+            Frame.Navigate(typeof(NewLimit), _lastSelectedItem, new DrillInNavigationTransitionInfo());
         }
     }
 }
